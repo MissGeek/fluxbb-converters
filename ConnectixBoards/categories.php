@@ -5,7 +5,8 @@ $cat_count = 0;
 $result = $fdb->query('SELECT * FROM '.$fdb->prefix.'forums') or myerror('Unable to fetch categories', __FILE__, __LINE__, $fdb->error());
 while($ob = $fdb->fetch_assoc($result))
 {
-	echo htmlspecialchars($ob['forum_name']).' ('.$ob['forum_id'].")<br>\n"; flush();
+	$catname = convert_to_utf8($ob['forum_name']);
+	echo htmlspecialchars($catname).' ('.$ob['forum_id'].")<br>\n"; flush();
 
 	// Dataarray
 	$todb = array(

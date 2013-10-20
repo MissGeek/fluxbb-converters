@@ -4,7 +4,8 @@
 $result = $fdb->query('SELECT * FROM '.$fdb->prefix.'groups WHERE gr_id > 4') or myerror('Unable to fetch groups', __FILE__, __LINE__, $fdb->error());
 while($ob = $fdb->fetch_assoc($result))
 {
-	echo htmlspecialchars($ob['gr_name']).' ('.$ob['gr_id'].")<br>\n"; flush();
+	$groupname = convert_to_utf8($ob['gr_name']);
+	echo htmlspecialchars($groupname).' ('.$ob['gr_id'].")<br>\n"; flush();
 	
 	if (trim($ob['gr_name']) == '')
 		$ob['gr_name'] = 'Group';
@@ -12,7 +13,7 @@ while($ob = $fdb->fetch_assoc($result))
 	// Dataarray
 	$todb = array(
 		'g_id'				=>	$ob['gr_id'], 
-		'g_title'			=>	$ob['gr_name'],	
+		'g_title'			=>	$groupname,	
 		'g_user_title'		=> 	$ob['gr_name'],
 	);
 

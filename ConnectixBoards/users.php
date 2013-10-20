@@ -11,7 +11,8 @@ $last_id = -1;
 while ($ob = $fdb->fetch_assoc($res))
 {
 	$last_id = $ob['usr_id'];
-	echo htmlspecialchars($ob['usr_name']).' ('.$ob['usr_id'].")<br>\n"; flush();
+	$username = convert_to_utf8($ob['usr_name']);
+	echo htmlspecialchars($username).' ('.$ob['usr_id'].")<br>\n"; flush();
 
 	// Last post
 	$lastresult = $fdb->query('SELECT msg_timestamp FROM '.$fdb->prefix.'messages WHERE msg_userid ='.$ob['usr_id'].' ORDER BY msg_id DESC LIMIT 1') or myerror("Unable to get user indo", __FILE__, __LINE__, $fdb->error());
@@ -31,14 +32,14 @@ while ($ob = $fdb->fetch_assoc($res))
 
 	if ($ob['usr_punished'] != '')
 	{
-		list($type,$start,$expires) = explode('|', $ob['usr_punished']);
+		list($puntype,$punstart,$punexpires) = explode('|', $ob['usr_punished']);
 		
 		//Dataarray
 		$todb = array(
-			'username'	=> $ob['usr_name'],
+			'username'	=> $username,
 			'email'		=> $ob['usr_email'],
 			'ip'		=> long2ip($ob['usr_ip']),
-			'expire'	=> $start + $expires,
+			'expire'	=> $punstart + $punexpires,
 		);
 	
 		// Save data
@@ -49,7 +50,7 @@ while ($ob = $fdb->fetch_assoc($res))
 	$todb = array(
 		'id'				=>	++$ob['usr_id'],
 		'group_id'			=>	$ob['usr_class'],
-		'username'			=>	$ob['usr_name'],
+		'username'			=>	$username,
 		'password'			=>	$ob['usr_password'],
 		'url'				=>	$ob['usr_website'],
 		'icq'				=>	$ob['usr_icq'],
@@ -58,7 +59,7 @@ while ($ob = $fdb->fetch_assoc($res))
 		'yahoo'				=>	$ob['usr_yahoo'],
 		'num_posts'			=>	$ob['usr_nbmess'],
 		'last_post'			=>	$last['msg_timestamp'],
-		'location'			=>	$ob['usr_place'],
+		'location'			=>	convert_to_utf8($ob['usr_place']),
 		'email_setting'		=>	!$ob['usr_publicemail'],
 		'timezone'			=>	(int)$ob['usr_pref_timezone'],
 		'dst'				=>	$ob['usr_pref_ctsummer'],
@@ -66,7 +67,7 @@ while ($ob = $fdb->fetch_assoc($res))
 		'signature'			=>	convert_posts($ob['usr_signature']),
 		'email'				=>	$ob['usr_email'],
 		'registration_ip'	=>	long2ip($ob['usr_ip']),
-		'realname'			=>	$ob['usr_realname'],
+		'realname'			=>	convert_to_utf8($ob['usr_realname']),
 	);
 
 	// Handle the user registered date

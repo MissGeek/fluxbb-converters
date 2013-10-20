@@ -5,7 +5,8 @@ $last_id = -1;
 while ($ob = $fdb->fetch_assoc($result))
 {
 	$last_id = $ob['msg_id'];
-	echo $ob['msg_id'].' ('.htmlspecialchars($ob['usr_name']).")<br>\n"; flush();
+	$poster = convert_to_utf8($ob['usr_name']);
+	echo $ob['msg_id'].' ('.htmlspecialchars($poster).")<br>\n"; flush();
 
 	// Check for anonymous poster id problem
 	if ($ob['msg_userid'] == 0)
@@ -21,14 +22,14 @@ while ($ob = $fdb->fetch_assoc($result))
 	// Dataarray
 	$todb = array(
 		'id'		=>	$ob['msg_id'],
-		'poster'	=>	$ob['usr_name'],
+		'poster'	=>	convert_to_utf8($ob['usr_name']),
 		'poster_id'	=>	$ob['msg_userid'],
 		'posted'	=>	$ob['msg_timestamp'],
 		'poster_ip'	=>	long2ip($ob['msg_userip']),
 		'message'	=>	convert_posts($ob['msg_message']),
 		'topic_id'	=>	$ob['msg_topicid'],
 		'edited'	=>	($ob['msg_modified'] > 0) ? $ob['msg_modified'] : '',
-		'edited_by' =>	isset($ob['modified_usr_name']) ? $ob['modified_usr_name'] : ''
+		'edited_by' =>	isset($ob['modified_usr_name']) ? convert_to_utf8($ob['modified_usr_name']) : ''
 	);
 
 	// Save data

@@ -12,7 +12,8 @@ $last_id = -1;
 while ($ob = $fdb->fetch_assoc($result))
 {
 	$last_id = $ob['mp_id'];
-	echo htmlspecialchars($ob['usr_name']).' ('.$ob['mp_id'].")<br>\n"; flush();
+	$sender = convert_to_utf8($ob['usr_name']);
+	echo htmlspecialchars($sender).' ('.$ob['mp_id'].")<br>\n"; flush();
 	++$ob['mp_from'];
 	$ob['mp_subj'] = convert_posts($ob['mp_subj']);
 
@@ -34,10 +35,10 @@ while ($ob = $fdb->fetch_assoc($result))
 	else // topic does not exist, create it
 	{
 		$todb = array(
-			'topic'			=> $ob['mp_subj'],
-			'starter'		=> $ob['usr_name'],
+			'topic'			=> html_entity_decode(htmlspecialchars_decode($ob['mp_subj']), ENT_QUOTES, 'UTF-8'),
+			'starter'		=> $sender,
 			'starter_id'	=> $ob['mp_from'],
-			'to_user'		=> $ob['receiver'],
+			'to_user'		=> convert_to_utf8($ob['receiver']),
 			'to_id'			=> ++$ob['mp_to'],
 			'replies'		=> 1,
 			'last_posted'	=> $ob['mp_timestamp'], // temp
@@ -50,7 +51,7 @@ while ($ob = $fdb->fetch_assoc($result))
 
 	// Dataarray
 	$todb = array(
-		'poster'		=> $ob['usr_name'],
+		'poster'		=> $sender,
 		'poster_id'		=> $ob['mp_from'],
 		'message'		=> convert_posts($ob['mp_content']),
 		'posted'		=> $ob['mp_timestamp'],

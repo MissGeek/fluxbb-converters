@@ -6,7 +6,8 @@ $last_id = -1;
 while($ob = $fdb->fetch_assoc($result))
 {
 	$last_id = $ob['topic_id'];
-	echo htmlspecialchars($ob['topic_name']).' ('.$ob['topic_id'].")<br>\n"; flush();
+	$topictitle = convert_to_utf8($ob['topic_name']);
+	echo htmlspecialchars($topictitle).' ('.$ob['topic_id'].")<br>\n"; flush();
 
 	// Solves last-post-problem when there are no answers
 	if ($ob['topic_lastmessage'] != '')
@@ -19,7 +20,7 @@ while($ob = $fdb->fetch_assoc($result))
 	}
 
 	//Look for first post ID, as CB doesn't have an entry for topics' first post id
-	$sql2 = $fdb->query('SELECT msg_id, msg_timestamp FROM '.$fdb->prefix.'messages WHERE msg_topicid='.$ob['topic_id'].' ORDER BY msg_id DESC LIMIT 1') or myerror("Unable to get first post info", __FILE__, __LINE__, $fdb->error());
+	$sql2 = $fdb->query('SELECT msg_id, msg_timestamp FROM '.$fdb->prefix.'messages WHERE msg_topicid='.$ob['topic_id'].' ORDER BY msg_id ASC LIMIT 1') or myerror("Unable to get first post info", __FILE__, __LINE__, $fdb->error());
 	$first = $fdb->fetch_assoc($sql2);
 
 	// Check for anonymous poster id problem
@@ -42,7 +43,7 @@ while($ob = $fdb->fetch_assoc($result))
 		'num_replies'	=>	$ob['topic_nbreply'],
 		'last_post'		=>	$last_post['msg_timestamp'],
 		'last_post_id'	=>	$ob['topic_lastmessage'],
-		'last_poster'	=>	$last_post['usr_name'],
+		'last_poster'	=>	convert_to_utf8($last_post['usr_name']),
 		'sticky'		=>	(int)($ob['topic_type'] > 0),
 		'closed'		=>	(int)($ob['topic_status'] == 1),
 		'forum_id'		=>	$ob['topic_fromtopicgroup'],

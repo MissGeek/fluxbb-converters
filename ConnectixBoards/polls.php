@@ -11,7 +11,8 @@ $last_id = -1;
 while($ob = $fdb->fetch_assoc($result))
 {
 	$last_id = $ob['poll_id'];
-	echo htmlspecialchars($ob['poll_question']).' ('.$ob['poll_id'].")<br>\n"; flush();
+	$question = convert_to_utf8($ob['poll_question']);
+	echo htmlspecialchars($question).' ('.$ob['poll_id'].")<br>\n"; flush();
 
 	$answers = null;
 
