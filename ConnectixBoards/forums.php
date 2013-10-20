@@ -38,6 +38,16 @@ while($ob = $fdb->fetch_assoc($result))
 			$last_post['usr_name'] = 'null';
 	}
 
+	if($ob['tg_fromforum'] == 0)
+	{
+		$catidres = $fdb->query('SELECT tg_fromforum FROM '.$fdb->prefix.'topicgroups WHERE tg_id='.$ob['tg_fromtopicgroup']) or error('Unable to get parent category', __FILE__, __LINE__, $fdb->error());
+		$parentcat = $fdb->result($catidres);
+	}
+	else
+	{
+		$parentcat = $ob['tg_fromforum'];
+	}
+
 	// Dataarray
 	$todb = array(
 		'id'			=>		$ob['tg_id'],
@@ -49,7 +59,7 @@ while($ob = $fdb->fetch_assoc($result))
 		'last_post_id'	=>		isset($last_post['topic_lastmessage']) ? $last_post['topic_lastmessage'] : 0,
 		'last_poster'	=>		isset($last_post['usr_name']) ? $last_post['usr_name'] : '',
 		'last_post'		=>		isset($last_post['msg_timestamp']) ? $last_post['msg_timestamp'] : 0,
-		'cat_id'		=>		$ob['tg_fromforum'],
+		'cat_id'			=>		$parentcat,
 		'parent_forum_id'=>		$ob['tg_fromtopicgroup'],
 		'redirect_url'	=>		$ob['tg_link'],
 	);
