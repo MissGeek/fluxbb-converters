@@ -10,12 +10,13 @@ if (!$db->field_exists('forums', 'parent_forum_id'))
 	$db->add_field('forums', 'parent_forum_id', 'INT', true, 0);
 
 // Fetch forum info
-$result = $fdb->query('SELECT * FROM '.$fdb->prefix.'topicgroups WHERE tg_id>'.$start.' ORDER BY tg_id LIMIT '.$_SESSION['limit']) or myerror('Connectix Boards: Unable to get table: forums', __FILE__, __LINE__, $fdb->error());
+$result = $fdb->query('SELECT * FROM '.$fdb->prefix.'topicgroups WHERE tg_id >'.$start.' ORDER BY tg_id LIMIT '.$_SESSION['limit']) or myerror('Connectix Boards: Unable to get table: forums', __FILE__, __LINE__, $fdb->error());
 $last_id = -1;
 while($ob = $fdb->fetch_assoc($result))
 {
 	$last_id = $ob['tg_id'];
-	echo htmlspecialchars($ob['tg_name']).' ('.$ob['tg_id'].")<br>\n"; flush();
+	$forumname = convert_to_utf8($ob['tg_name']);
+	echo htmlspecialchars($forumname).' ('.$ob['tg_id'].")<br>\n"; flush();
 
 	if ($ob['tg_lasttopic'] > 0)
 	{
@@ -40,8 +41,8 @@ while($ob = $fdb->fetch_assoc($result))
 
 	if($ob['tg_fromforum'] == 0)
 	{
-		$catidres = $fdb->query('SELECT tg_fromforum FROM '.$fdb->prefix.'topicgroups WHERE tg_id='.$ob['tg_fromtopicgroup']) or error('Unable to get parent category', __FILE__, __LINE__, $fdb->error());
-		$parentcat = $fdb->result($catidres);
+		$cat = $fdb->query('SELECT tg_fromforum FROM '.$fdb->prefix.'topicgroups WHERE tg_id='.$ob['tg_fromtopicgroup']) or error('Unable to get parent category', __FILE__, __LINE__, $fdb->error());
+		$parentcat = $fdb->result($cat);
 	}
 	else
 	{
@@ -57,7 +58,7 @@ while($ob = $fdb->fetch_assoc($result))
 		'num_posts'		=>		$ob['tg_nbmess'],
 		'disp_position'	=>		$ob['tg_order'],
 		'last_post_id'	=>		isset($last_post['topic_lastmessage']) ? $last_post['topic_lastmessage'] : 0,
-		'last_poster'	=>		isset($last_post['usr_name']) ? $last_post['usr_name'] : '',
+		'last_poster'	=>		isset($last_post['usr_name']) ? convert_to_utf8($last_post['usr_name']) : '',
 		'last_post'		=>		isset($last_post['msg_timestamp']) ? $last_post['msg_timestamp'] : 0,
 		'cat_id'			=>		$parentcat,
 		'parent_forum_id'=>		$ob['tg_fromtopicgroup'],
@@ -68,4 +69,4 @@ while($ob = $fdb->fetch_assoc($result))
 	insertdata('forums', $todb, __FILE__, __LINE__);
 }
 
-convredirect('forum_id', 'forums', $last_id);
+convredirect('tg_id', 'topicgroups', $last_id);
